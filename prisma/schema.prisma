@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  name      String?
+  avatar    String?
+  bio       String?
+  github   String?
+  twitter  String?
+  createdAt DateTime @default(now())
+  posts     Post[]
+  comments  Comment[]
+  likes     Like[]
+}
+
+model Post {
+  id          String    @id @default(cuid())
+  title       String
+  content     String
+  summary    String?
+  coverImage String?
+  published  Boolean   @default(true)
+  viewCount  Int       @default(0)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  authorId   String
+  author     User      @relation(fields: [authorId], references: [id])
+  comments   Comment[]
+  likes     Like[]
+}
+
+model Product {
+  id           String   @id @default(cuid())
+  name         String
+  description  String
+  price        Float
+  coverImage   String?
+  images       String   @default("[]")
+  published   Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  comments     Comment[]
+  likes       Like[]
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  nickname  String?
+  createdAt DateTime @default(now())
+  postId    String?
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  postId    String?
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@unique([postId, userId])
+  @@unique([productId, userId])
+}
