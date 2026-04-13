@@ -20,7 +20,7 @@ interface PostCardProps {
 export default function PostCard({ post }: PostCardProps) {
   return (
     <Link href={`/articles/${post.id}`} className="group block">
-      <article className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+      <article className="bg-white/70 backdrop-blur-sm rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow border border-amber-100/50">
         {post.coverImage && (
           <div className="relative h-48 w-full">
             <Image

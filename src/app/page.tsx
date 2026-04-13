@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
+import Quote from '@/components/Quote'
 import PostCard from '@/components/PostCard'
 import ProductCard from '@/components/ProductCard'
 
@@ -36,7 +37,8 @@ export default async function HomePage() {
   })
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-12">
+    <div className="max-w-6xl mx-auto px-4 pt-20 min-h-screen bg-gradient-to-b from-amber-50/50 via-violet-25/30 to-orange-50/50">
+      <Quote />
       <section className="flex flex-col md:flex-row items-center gap-12 mb-16">
         <div className="w-32 h-32 md:w-40 md:h-40 relative flex-shrink-0">
           <div className="w-full h-full rounded-full bg-primary-100 flex items-center justify-center overflow-hidden">

@@ -18,7 +18,7 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   return (
     <Link href={`/products/${product.id}`} className="group block">
-      <article className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+      <article className="bg-white/70 backdrop-blur-sm rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow border border-amber-100/50">
         {product.coverImage && (
           <div className="relative h-48 w-full">
             <Image

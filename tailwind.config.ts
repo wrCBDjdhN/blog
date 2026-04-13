@@ -25,6 +25,15 @@ const config: Config = {
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
       },
+      animation: {
+        'gradient-breath': 'gradientBreath 8s ease-in-out infinite',
+      },
+      keyframes: {
+        gradientBreath: {
+          '0%, 100%': { filter: 'brightness(1) saturate(1)' },
+          '50%': { filter: 'brightness(1.05) saturate(1.1)' },
+        },
+      },
     },
   },
   plugins: [],
