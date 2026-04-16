@@ -9,11 +9,27 @@ export default function Footer() {
             © {currentYear} My Blog. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
-            <a href="#" className="text-sm text-gray-500 hover:text-gray-700">
+            <a
+              href="https://github.com/wrCBDjdhN"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-gray-500 hover:text-gray-700"
+            >
               GitHub
             </a>
-            <a href="#" className="text-sm text-gray-500 hover:text-gray-700">
-              Twitter
+            <a
+              href="mailto:wrcbdjdh@gmail.com"
+              className="text-sm text-gray-500 hover:text-gray-700"
+            >
+              Email
+            </a>
+            <a
+              href="https://space.bilibili.com/2004651139?spm_id_from=333.1007.0.0"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-gray-500 hover:text-gray-700"
+            >
+              Bilibili
             </a>
           </div>
         </div>

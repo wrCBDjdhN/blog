@@ -14,8 +14,9 @@ model User {
   name      String?
   avatar    String?
   bio       String?
-  github   String?
+  github    String?
   twitter  String?
+  bilibili  String?
   createdAt DateTime  @default(now())
   posts     Post[]
   comments  Comment[]

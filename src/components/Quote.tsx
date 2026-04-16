@@ -3,22 +3,32 @@
 import { useState, useEffect, useCallback } from 'react'
 
 const quotes = [
-  { text: '道可道，非常道；名可名，非常名。', source: '《道德经》' },
-  { text: '千里之行，始于足下。', source: '《道德经》' },
-  { text: '上善若水，水善利万物而不争。', source: '《道德经》' },
-  { text: '知人者智，自知者明。', source: '《道德经》' },
-  { text: '大音希声，大象无形。', source: '《道德经》' },
-  { text: '天网恢恢，疏而不漏。', source: '《道德经》' },
-  { text: '祸兮福之所倚，福兮祸之所伏。', source: '《道德经》' },
-  { text: '物以类聚，人以群分。', source: '《易经》' },
-  { text: '天行健，君子以自强不息。', source: '《易经》' },
-  { text: '地势坤，君子以厚德载物。', source: '《易经》' },
-  { text: '学而不思则罔，思而不学则殆。', source: '《论语》' },
-  { text: '己所不欲，勿施于人。', source: '《论语》' },
-  { text: '三人行，必有我师焉。', source: '《论语》' },
-  { text: '有朋自远方来，不亦乐乎。', source: '《论语》' },
-  { text: '温故而知新，可以为师矣。', source: '《论语》' },
-  { text: '岁寒，然后知松柏之后凋也。', source: '《论语》' },
+  { text: '失败比成功更能让人记忆深刻。', source: 'None' },
+  { text: '她说，去你妈的花海。', source: '《在》草东没有派对' },
+  { text: '主，都不在乎。', source: '《三体》' },
+  { text: '等石狮子上落满麻雀。', source: '《宇宙探索编辑部》' },
+  { text: '别等到失去了才懂得珍惜。', source: 'None' },
+  { text: '我这一生，如履薄冰，你说我能走到对岸吗。', source: 'Unknow' },
+  { text: '在成人之前，真想先成为自己，在世界毁灭之前，真想先毁灭自己。', source: '《空》草东没有派对' },
+  { text: '我希望她幸福她幸福她幸福。', source: '《现在你才不幸福》河南说唱之神' },
+  { text: 'FACE THE FEAR,MAKE THE FUTURE。', source: 'LOBOTOMY CORTORATION' },
+  { text: 'THE WORLD IS SICK', source: 'Unknow' },
+  { text: '和过去的自己做个了断，弱小的人总是眼泪泡饭', source: '《矿》亚细亚旷世奇才' },
+  { text: '不理解，不原谅。', source: '《宇宙探索编辑部》' },
+  { text: '老唐，你就只能到这儿喽。', source: '《宇宙探索编辑部》' },
+  { text: '人们把无法理解的事物，成为神话。', source: '白夜梦的摸鱼时间' },
+  { text: '人类至上主义。', source: '白夜梦的摸鱼时间' },
+  { text: '你愿意牺牲生命，换一个名垂史册的机会吗。', source: '白夜梦的摸鱼时间' },
+  { text: '假如人类文明的命运是被设计出来的。', source: '白夜梦的摸鱼时间' },
+  { text: '古人把无法解释的自然现象，称之为神话。', source: '白夜梦的摸鱼时间' },
+  { text: '是牺牲99%的人类拯救剩余百分之一,还是全部的人类一起消亡?', source: '白夜梦的摸鱼时间' },
+  { text: '末日即将到来，如果只能给下一轮文明留下一句话，你会说什么？', source: '白夜梦的摸鱼时间' },
+  { text: '假如你的大脑潜能被100%开发，但只剩一年寿命，你会利用这智慧做些什么？', source: '白夜梦的摸鱼时间' },
+  { text: '真相的厚度远不止125页论文。', source: '白夜梦的摸鱼时间' },
+  { text: '屠龙的勇士终成恶龙。', source: '白夜梦的摸鱼时间' },
+  { text: '爱的本质是慕强心理。', source: 'Unknow' },
+  { text: '沉没成本不参与任何重大决策。', source: '让人琢磨一生的13字' },
+  { text: '低谷才是常态。', source: '碎嘴企鹅' },
 ]
 
 function getRandomQuote(excludeIndex: number): { text: string; source: string; index: number } {
@@ -47,12 +57,12 @@ export default function Quote() {
   }, [])
 
   useEffect(() => {
-    const interval = setInterval(refreshQuote, 30000)
+    const interval = setInterval(refreshQuote, 15000)
     return () => clearInterval(interval)
   }, [refreshQuote])
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50">
+    <div className="w-full">
       <div className="relative overflow-hidden bg-gradient-to-r from-violet-300 via-amber-100 to-orange-200 animate-gradient-breath">
         <div className="absolute inset-0 opacity-30">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(255,255,255,0.4)_0%,transparent_50%),radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.3)_0%,transparent_40%)" />

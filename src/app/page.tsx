@@ -51,7 +51,7 @@ export default async function HomePage() {
         </div>
         <div className="text-center md:text-left">
           <h1 className="text-3xl font-bold text-gray-900">{user?.name || 'wrCBDjdh'}</h1>
-          <p className="mt-2 text-gray-600 max-w-lg">{user?.bio || '欢迎来到我的个人博客，在这里分享我的程序和生活。'}</p>
+          <p className="mt-2 text-gray-600 max-w-lg">{user?.bio || 'Welcome to my personal blog. I am a beginner programmer, skilled in backend development, accustomed to using Python, Java, Rust, and C++, and develop using VS Code, Docker, and Windows.'}</p>
           <div className="mt-4 flex items-center justify-center md:justify-start gap-4">
             {user?.github && (
               <a href={user.github} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-900">
@@ -60,10 +60,17 @@ export default async function HomePage() {
                 </svg>
               </a>
             )}
-            {user?.twitter && (
-              <a href={user.twitter} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-900">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+            {user?.email && (
+              <a href={`mailto:${user.email}`} className="text-gray-500 hover:text-gray-900">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </a>
+            )}
+            {user?.bilibili && (
+              <a href={user.bilibili} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-900">
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm4.5 16.5c0 .828-.672 1.5-1.5 1.5h-6c-.828 0-1.5-.672-1.5-1.5v-4.5c0-.828.672-1.5 1.5-1.5h6c.828 0 1.5.672 1.5 1.5v4.5zm-1.5-6h-4.5v3h4.5v-3zm-2.25-1.5v4.5h-1.5v-4.5h1.5z"/>
                 </svg>
               </a>
             )}
