@@ -50,6 +50,18 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: "default-src 'self'; img-src 'self' https: i.ibb.co *.ibb.co data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
           },
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, POST, PUT, DELETE, OPTIONS',
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'Content-Type, Authorization',
+          },
         ],
       },
     ]
