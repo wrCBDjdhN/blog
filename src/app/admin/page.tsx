@@ -11,11 +11,15 @@ export default async function AdminPage() {
     redirect('/admin/login')
   }
 
-  const [postCount, productCount, totalViews, recentPosts] = await Promise.all([
+  const [postCount, productCount, totalViews, recentPosts, recentProducts] = await Promise.all([
     prisma.post.count(),
     prisma.product.count(),
     prisma.post.aggregate({ _sum: { viewCount: true } }),
     prisma.post.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+    }),
+    prisma.product.findMany({
       orderBy: { createdAt: 'desc' },
       take: 5,
     }),
@@ -53,7 +57,7 @@ export default async function AdminPage() {
               {recentPosts.map((post) => (
                 <Link
                   key={post.id}
-                  href={`/admin/posts/${post.id}`}
+                  href="/admin/posts"
                   className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0"
                 >
                   <span className="text-sm text-gray-900 truncate">{post.title}</span>
@@ -75,9 +79,24 @@ export default async function AdminPage() {
               新建商品
             </Link>
           </div>
-          <div className="space-y-3">
+          {recentProducts.length > 0 ? (
+            <div className="space-y-3">
+              {recentProducts.map((product) => (
+                <Link
+                  key={product.id}
+                  href="/admin/products"
+                  className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0"
+                >
+                  <span className="text-sm text-gray-900 truncate">{product.name}</span>
+                  <span className="text-xs text-gray-500">
+                    {product.published ? '已发布' : '草稿'}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          ) : (
             <p className="text-sm text-gray-500">暂无商品</p>
-          </div>
+          )}
         </div>
       </div>
     </div>

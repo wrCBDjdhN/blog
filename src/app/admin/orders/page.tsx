@@ -112,6 +112,35 @@ export default function AdminOrdersPage() {
     }
   }
 
+  async function handleDelete(orderId: string) {
+    if (!confirm('确定要删除这条订单记录吗？此操作不可恢复。')) {
+      return
+    }
+
+    setActionLoading(orderId)
+    try {
+      const res = await fetch('/api/admin/orders', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: orderId }),
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        toast.error(data.error || '删除失败')
+        return
+      }
+
+      toast.success('订单已删除')
+      fetchOrders()
+    } catch (error) {
+      console.error('Failed to delete order:', error)
+      toast.error('删除失败')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
   function isExpired(createdAt: string): boolean {
     const created = new Date(createdAt)
     const now = new Date()
@@ -263,7 +292,13 @@ export default function AdminOrdersPage() {
                           </div>
                         )}
                         {order.status !== 'pending' && (
-                          <span className="text-gray-400 text-xs">-</span>
+                          <button
+                            onClick={() => handleDelete(order.id)}
+                            disabled={actionLoading === order.id}
+                            className="px-3 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 disabled:opacity-50 transition-colors"
+                          >
+                            {actionLoading === order.id ? '删除中...' : '删除'}
+                          </button>
                         )}
                       </td>
                     </tr>

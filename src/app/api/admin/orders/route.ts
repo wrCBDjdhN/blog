@@ -114,3 +114,37 @@ export async function PATCH(request: NextRequest) {
 
   return NextResponse.json(updatedOrder)
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    await verifyAdminSession()
+  } catch {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const body = await request.json()
+  const { id, orderNumber } = body
+
+  const identifier = id || orderNumber
+
+  if (!identifier) {
+    return NextResponse.json(
+      { error: 'Missing required field: id or orderNumber' },
+      { status: 400 }
+    )
+  }
+
+  const order = id
+    ? await prisma.order.findUnique({ where: { id } })
+    : await prisma.order.findUnique({ where: { orderNumber } })
+
+  if (!order) {
+    return NextResponse.json({ error: 'Order not found' }, { status: 404 })
+  }
+
+  await prisma.order.delete({
+    where: { id: order.id },
+  })
+
+  return NextResponse.json({ message: 'Order deleted successfully' })
+}
