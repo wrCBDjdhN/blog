@@ -24,12 +24,8 @@ export default function BuyPage() {
     buyerEmail: '',
   })
   const [error, setError] = useState('')
-  const [wechatPayUrl, setWechatPayUrl] = useState('')
   const [showQrCode, setShowQrCode] = useState(false)
-
-  useEffect(() => {
-    setWechatPayUrl(process.env.NEXT_PUBLIC_WECHAT_PAY_URL || '')
-  }, [])
+  const wechatPayUrl = '/wechat-pay.png'
 
   useEffect(() => {
     async function fetchProduct() {
