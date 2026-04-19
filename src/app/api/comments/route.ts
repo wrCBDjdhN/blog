@@ -3,6 +3,21 @@ import { getServerSession } from 'next-auth'
 import { prisma } from '@/lib/prisma'
 import { authOptions } from '@/lib/auth'
 
+/**
+ * Escapes HTML special characters to prevent XSS attacks.
+ * Replaces: < > " ' & with their HTML entities
+ */
+function escapeHtml(text: string): string {
+  const htmlEntities: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  }
+  return text.replace(/[<&>"']/g, (char) => htmlEntities[char] || char)
+}
+
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions)
   const body = await request.json()
@@ -12,13 +27,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
+  const sanitizedContent = escapeHtml(content)
+  const sanitizedNickname = nickname ? escapeHtml(nickname) : undefined
+
   const createData: {
     content: string
     postId?: string
     productId?: string
     userId?: string
     nickname?: string
-  } = { content }
+  } = { content: sanitizedContent, nickname: sanitizedNickname }
 
   if (targetType === 'post') {
     createData.postId = targetId

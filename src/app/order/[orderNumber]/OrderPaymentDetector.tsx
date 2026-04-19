@@ -31,6 +31,7 @@ export function OrderPaymentDetector({ order, onStatusChange }: OrderPaymentDete
     try {
       const res = await fetch('/api/orders', {
         method: 'PATCH',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderNumber: order.orderNumber, checkStatusOnly: true }),
       })

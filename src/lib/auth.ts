@@ -3,24 +3,49 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
 import { prisma } from './prisma'
 
-const rateLimitStore = new Map<string, { count: number; firstAttempt: number }>()
 const RATE_LIMIT = 5
-const RATE_WINDOW = 15 * 60 * 1000
+const RATE_WINDOW_MS = 15 * 60 * 1000
+const BAN_DURATION_MS = 30 * 60 * 1000
 
-function checkRateLimit(email: string): boolean {
-  const now = Date.now()
-  const record = rateLimitStore.get(email)
+async function checkRateLimit(email: string): Promise<boolean> {
+  const now = new Date()
 
-  if (!record || now - record.firstAttempt > RATE_WINDOW) {
-    rateLimitStore.set(email, { count: 1, firstAttempt: now })
+  const existing = await prisma.rateLimit.findUnique({
+    where: { identifier: email },
+  })
+
+  if (!existing || existing.expiresAt < now) {
+    const expiresAt = new Date(now.getTime() + RATE_WINDOW_MS)
+    await prisma.rateLimit.upsert({
+      where: { identifier: email },
+      create: {
+        identifier: email,
+        count: 1,
+        firstAttempt: BigInt(now.getTime()),
+        expiresAt,
+      },
+      update: {
+        count: 1,
+        firstAttempt: BigInt(now.getTime()),
+        expiresAt,
+      },
+    })
     return true
   }
 
-  if (record.count >= RATE_LIMIT) {
+  if (existing.count >= RATE_LIMIT) {
+    const banExpiresAt = new Date(now.getTime() + BAN_DURATION_MS)
+    await prisma.rateLimit.update({
+      where: { identifier: email },
+      data: { expiresAt: banExpiresAt },
+    })
     return false
   }
 
-  record.count++
+  await prisma.rateLimit.update({
+    where: { identifier: email },
+    data: { count: { increment: 1 } },
+  })
   return true
 }
 
@@ -37,7 +62,8 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        if (!checkRateLimit(credentials.email)) {
+        const isAllowed = await checkRateLimit(credentials.email)
+        if (!isAllowed) {
           console.warn(`Rate limit exceeded for: ${credentials.email}`)
           return null
         }
@@ -63,6 +89,7 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           name: user.name,
+          role: user.role,
         }
       },
     }),
@@ -78,12 +105,14 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
+        token.role = (user as any).role || 'user'
       }
       return token
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string
+        session.user.role = token.role as string
       }
       return session
     },

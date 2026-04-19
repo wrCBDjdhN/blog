@@ -2,20 +2,30 @@ import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
 
-export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url)
-  const secret = searchParams.get('secret')
-  const email = searchParams.get('email')
-  const password = searchParams.get('password')
-  const name = searchParams.get('name') || '博主'
-  const bio = searchParams.get('bio') || '欢迎来到我的博客'
+interface InitBody {
+  secret: string
+  email: string
+  password: string
+  name?: string
+  bio?: string
+}
+
+export async function POST(request: NextRequest) {
+  let body: InitBody
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Request body must be JSON' }, { status: 400 })
+  }
+
+  const { secret, email, password, name = '博主', bio = '欢迎来到我的博客' } = body
+
+  if (!secret || !email || !password) {
+    return NextResponse.json({ error: 'Secret, email, and password are required' }, { status: 400 })
+  }
 
   if (secret !== process.env.INIT_SECRET) {
     return NextResponse.json({ error: 'Invalid secret' }, { status: 401 })
-  }
-
-  if (!email || !password) {
-    return NextResponse.json({ error: 'Email and password required' }, { status: 400 })
   }
 
   try {

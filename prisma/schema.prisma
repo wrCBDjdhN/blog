@@ -12,6 +12,7 @@ model User {
   email      String    @unique
   password   String
   name       String?
+  role       String    @default("user")
   avatar     String?
   bio        String?
   github     String?
@@ -97,16 +98,27 @@ model Like {
 
 model Order {
   id          String    @id @default(cuid())
-  orderNumber String    @unique
+  orderNumber String   @unique
   productId   String
   productName String
   price       Float
-  buyerName   String
-  buyerEmail  String
-  status      String
-  createdAt   DateTime  @default(now())
-  paidAt      DateTime?
+  buyerName  String
+  buyerEmail String
+  status     String
+  createdAt  DateTime  @default(now())
+  paidAt     DateTime?
 
   @@index([orderNumber])
   @@index([buyerEmail])
+}
+
+model RateLimit {
+  id        String   @id @default(cuid())
+  identifier String  @unique
+  count     Int      @default(1)
+  firstAttempt BigInt
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
 }

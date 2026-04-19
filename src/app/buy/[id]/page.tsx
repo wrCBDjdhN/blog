@@ -77,6 +77,7 @@ export default function BuyPage() {
     try {
       const res = await fetch('/api/orders', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           productId: productId,
