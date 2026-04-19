@@ -23,15 +23,14 @@ export default function CommentForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    // Guard clause: content is required
     if (!content.trim()) {
       toast.error('请输入评论内容')
       return
     }
 
-    if (!nickname.trim() && !session) {
-      toast.error('请输入昵称')
-      return
-    }
+    // Guard clause: nickname is required for anonymous users
+    const finalNickname = session?.user?.name || nickname.trim() || '匿名'
 
     try {
       setLoading(true)
@@ -42,7 +41,7 @@ export default function CommentForm({
           targetId,
           targetType,
           content,
-          nickname: session?.user?.name || nickname || '匿名',
+          nickname: finalNickname,
         }),
       })
 
@@ -50,6 +49,7 @@ export default function CommentForm({
 
       toast.success('评论成功')
       setContent('')
+      setNickname('')
       onSuccess?.()
     } catch (error) {
       toast.error('评论失败')
@@ -60,12 +60,14 @@ export default function CommentForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
+      {/* Show nickname input only when user is not logged in */}
       {!session && (
         <input
           type="text"
           value={nickname}
           onChange={(e) => setNickname(e.target.value)}
-          placeholder="请输入昵称"
+          placeholder="昵称（留空默认为匿名）"
+          defaultValue="匿名"
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
         />
       )}

@@ -52,15 +52,45 @@ export default function Header({ user }: HeaderProps) {
               商品
             </Link>
             {user ? (
+              <>
+                <Link
+                  href="/admin"
+                  className={`text-sm font-medium transition-colors ${
+                    pathname?.startsWith('/admin') ? 'text-primary-600' : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  管理后台
+                </Link>
+                <Link
+                  href="/admin/orders"
+                  className={`text-sm font-medium transition-colors ${
+                    pathname?.startsWith('/admin/orders') ? 'text-primary-600' : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  订单管理
+                </Link>
+                <Link
+                  href="/account"
+                  className={`text-sm font-medium transition-colors ${
+                    pathname === '/account' ? 'text-primary-600' : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  账号设置
+                </Link>
+                <span className="text-sm text-gray-500">
+                  {user.name || '用户'}
+                </span>
+              </>
+            ) : (
               <Link
-                href="/admin"
+                href="/login"
                 className={`text-sm font-medium transition-colors ${
-                  pathname?.startsWith('/admin') ? 'text-primary-600' : 'text-gray-600 hover:text-gray-900'
+                  pathname === '/login' ? 'text-primary-600' : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
-                管理后台
+                登录
               </Link>
-            ) : null}
+            )}
           </nav>
 
           <div className="flex items-center gap-3">
@@ -96,9 +126,24 @@ export default function Header({ user }: HeaderProps) {
               <Link href="/products" className="text-sm font-medium text-gray-600" onClick={() => setMenuOpen(false)}>
                 商品
               </Link>
-              {user && (
-                <Link href="/admin" className="text-sm font-medium text-gray-600" onClick={() => setMenuOpen(false)}>
-                  管理后台
+              {user ? (
+                <>
+                  <Link href="/admin" className="text-sm font-medium text-gray-600" onClick={() => setMenuOpen(false)}>
+                    管理后台
+                  </Link>
+                  <Link href="/admin/orders" className="text-sm font-medium text-gray-600" onClick={() => setMenuOpen(false)}>
+                    订单管理
+                  </Link>
+                  <Link href="/account" className="text-sm font-medium text-gray-600" onClick={() => setMenuOpen(false)}>
+                    账号设置
+                  </Link>
+                  <span className="text-sm text-gray-500">
+                    {user.name || '用户'}
+                  </span>
+                </>
+              ) : (
+                <Link href="/login" className="text-sm font-medium text-gray-600" onClick={() => setMenuOpen(false)}>
+                  登录
                 </Link>
               )}
             </div>

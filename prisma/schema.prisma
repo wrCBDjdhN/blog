@@ -8,19 +8,20 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  password  String
-  name      String?
-  avatar    String?
-  bio       String?
-  github    String?
-  twitter  String?
-  bilibili  String?
-  createdAt DateTime  @default(now())
-  posts     Post[]
-  comments  Comment[]
-  likes     Like[]
+  id         String    @id @default(cuid())
+  email      String    @unique
+  password   String
+  name       String?
+  avatar     String?
+  bio        String?
+  github     String?
+  twitter    String?
+  bilibili   String?
+  isVerified Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  posts      Post[]
+  comments   Comment[]
+  likes      Like[]
 
   @@index([email])
 }
@@ -92,4 +93,20 @@ model Like {
   @@index([postId])
   @@index([productId])
   @@index([userId])
+}
+
+model Order {
+  id          String    @id @default(cuid())
+  orderNumber String    @unique
+  productId   String
+  productName String
+  price       Float
+  buyerName   String
+  buyerEmail  String
+  status      String
+  createdAt   DateTime  @default(now())
+  paidAt      DateTime?
+
+  @@index([orderNumber])
+  @@index([buyerEmail])
 }

@@ -5,9 +5,18 @@ import { authOptions } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
+  const ids = searchParams.get('ids')
   const page = parseInt(searchParams.get('page') || '1')
   const limit = parseInt(searchParams.get('limit') || '10')
   const published = searchParams.get('published')
+
+  if (ids) {
+    const idList = ids.split(',')
+    const products = await prisma.product.findMany({
+      where: { id: { in: idList } },
+    })
+    return NextResponse.json({ products })
+  }
 
   const where: Record<string, unknown> = {}
   if (published !== null) {

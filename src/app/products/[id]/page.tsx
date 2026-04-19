@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
+import Link from 'next/link'
 import { format } from 'date-fns'
 import { getServerSession } from 'next-auth'
 import { prisma } from '@/lib/prisma'
@@ -83,6 +84,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
               initialLiked={isLiked}
               initialCount={product._count.likes}
             />
+            <Link
+              href={`/buy/${product.id}`}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+            >
+              立即购买
+            </Link>
           </div>
         </div>
       </div>
