@@ -19,7 +19,7 @@ async function verifyAdminSession() {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     await verifyAdminSession()
   } catch (error) {
@@ -28,14 +28,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: message }, { status })
   }
 
-  const products = await prisma.product.findMany({
-    orderBy: { createdAt: 'desc' },
+  const friendLinks = await prisma.friendLink.findMany({
+    orderBy: [
+      { status: 'asc' },
+      { order: 'desc' },
+    ],
   })
 
-  return NextResponse.json(products)
+  return NextResponse.json(friendLinks)
 }
 
-export async function DELETE(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     await verifyAdminSession()
   } catch (error) {
@@ -45,23 +48,22 @@ export async function DELETE(request: NextRequest) {
   }
 
   const body = await request.json()
-  const { id } = body
+  const { name, url, description, avatar, order, status } = body
 
-  if (!id) {
-    return NextResponse.json({ error: 'Missing required field: id' }, { status: 400 })
+  if (!name || !url) {
+    return NextResponse.json({ error: 'Missing required fields: name, url' }, { status: 400 })
   }
 
-  const product = await prisma.product.findUnique({
-    where: { id },
+  const friendLink = await prisma.friendLink.create({
+    data: {
+      name,
+      url,
+      description: description || null,
+      avatar: avatar || null,
+      order: order || 0,
+      status: status || 'pending',
+    },
   })
 
-  if (!product) {
-    return NextResponse.json({ error: 'Product not found' }, { status: 404 })
-  }
-
-  await prisma.product.delete({
-    where: { id },
-  })
-
-  return NextResponse.json({ message: 'Product deleted successfully' })
+  return NextResponse.json(friendLink)
 }

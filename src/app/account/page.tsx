@@ -8,6 +8,7 @@ import toast from 'react-hot-toast'
 interface UserInfo {
   email: string
   name: string | null
+  avatar: string | null
 }
 
 export default function AccountPage() {
@@ -20,6 +21,10 @@ export default function AccountPage() {
   // Nickname form
   const [nickname, setNickname] = useState('')
   const [nicknameLoading, setNicknameLoading] = useState(false)
+
+  // Avatar form
+  const [avatar, setAvatar] = useState('')
+  const [avatarLoading, setAvatarLoading] = useState(false)
 
   // Password form
   const [currentPassword, setCurrentPassword] = useState('')
@@ -45,6 +50,7 @@ export default function AccountPage() {
         const data = await res.json()
         setUserInfo(data)
         setNickname(data.name || '')
+        setAvatar(data.avatar || '')
       } catch {
         toast.error('获取用户信息失败')
       } finally {
@@ -85,6 +91,36 @@ export default function AccountPage() {
       toast.error('更新昵称失败')
     } finally {
       setNicknameLoading(false)
+    }
+  }
+
+  const handleAvatarSubmit = async () => {
+    if (!avatar.trim()) {
+      toast.error('请输入头像路径')
+      return
+    }
+
+    try {
+      setAvatarLoading(true)
+      const res = await fetch('/api/account', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ avatar: avatar.trim() }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        toast.error(data.error || '更新头像失败')
+        return
+      }
+
+      toast.success('头像更新成功')
+      setUserInfo((prev) => (prev ? { ...prev, avatar: avatar.trim() } : null))
+    } catch {
+      toast.error('更新头像失败')
+    } finally {
+      setAvatarLoading(false)
     }
   }
 
@@ -169,6 +205,54 @@ export default function AccountPage() {
           <div>
             <span className="text-sm text-gray-500">昵称</span>
             <p className="text-gray-900">{userInfo?.name || '未设置'}</p>
+          </div>
+          <div>
+            <span className="text-sm text-gray-500">头像</span>
+            <div className="mt-1 flex items-center gap-3">
+              {userInfo?.avatar ? (
+                <img src={userInfo.avatar} alt="头像" className="w-12 h-12 rounded-full object-cover" />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center">
+                  <span className="text-lg text-primary-600">{userInfo?.name?.[0] || 'U'}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Avatar Form */}
+      <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">修改头像</h2>
+        <p className="text-sm text-gray-500 mb-4">
+          头像图片请放置在 public/avatars/ 目录下，然后输入图片路径（如 /avatars/avatar.png）
+        </p>
+        <div className="flex items-center gap-4">
+          <div className="relative w-20 h-20 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
+            {avatar ? (
+              <img src={avatar} alt="头像预览" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <span className="text-2xl text-gray-400">{nickname?.[0] || 'U'}</span>
+              </div>
+            )}
+          </div>
+          <div className="flex-1">
+            <input
+              type="text"
+              value={avatar}
+              onChange={(e) => setAvatar(e.target.value)}
+              placeholder="/avatars/avatar.png"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            />
+            <button
+              type="button"
+              onClick={handleAvatarSubmit}
+              disabled={avatarLoading || !avatar.trim()}
+              className="mt-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 transition-colors"
+            >
+              {avatarLoading ? '保存中...' : '保存头像'}
+            </button>
           </div>
         </div>
       </div>

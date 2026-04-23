@@ -122,3 +122,38 @@ model RateLimit {
 
   @@index([expiresAt])
 }
+
+model Payment {
+  id           String   @id @default(cuid())
+  outTradeNo   String   @unique  // 商户订单号
+  productId   String?          // 如果是购买商品
+  productName String?          // 商品名称
+  amount      Int              // 支付金额(分, 固定金额如 1元=100)
+  description String?          // 支付描述
+  status      String   @default("pending") // pending/success/expired/closed
+  openid      String?          // 用户openid
+  transactionId String?      // 微信交易号
+  paidAt      DateTime?       // 支付时间
+  expiresAt   DateTime       // 过期时间
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([outTradeNo])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+model FriendLink {
+  id          String   @id @default(cuid())
+  name        String   // 网站名称
+  url         String   // 网站URL
+  description String?  // 描述
+  avatar      String?  // 头像URL
+  order       Int      @default(0) // 排序
+  status      String   @default("pending") // pending/approved/rejected
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@index([order])
+}

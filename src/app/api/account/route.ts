@@ -43,12 +43,12 @@ export async function PUT(request: NextRequest) {
   }
 
   const body = await request.json()
-  const { name, currentPassword, newPassword } = body
+  const { name, currentPassword, newPassword, avatar } = body
 
   // Must provide at least one field to update
-  if (!name && !newPassword) {
+  if (!name && !newPassword && !avatar) {
     return NextResponse.json(
-      { error: 'Name or new password is required' },
+      { error: 'Name, avatar or new password is required' },
       { status: 400 }
     )
   }
@@ -104,6 +104,14 @@ export async function PUT(request: NextRequest) {
     await prisma.user.update({
       where: { id: session.user.id },
       data: { name },
+    })
+  }
+
+  // Update avatar if provided
+  if (avatar !== undefined) {
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: { avatar },
     })
   }
 

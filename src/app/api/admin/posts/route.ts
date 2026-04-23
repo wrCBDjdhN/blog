@@ -5,16 +5,27 @@ import { authOptions } from '@/lib/auth'
 
 async function verifyAdminSession() {
   const session = await getServerSession(authOptions)
-  if (!session) {
+  if (!session?.user?.email) {
     throw new Error('Unauthorized')
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    select: { role: true },
+  })
+
+  if (user?.role !== 'admin') {
+    throw new Error('Forbidden')
   }
 }
 
 export async function GET(request: NextRequest) {
   try {
     await verifyAdminSession()
-  } catch {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unauthorized'
+    const status = message === 'Forbidden' ? 403 : 401
+    return NextResponse.json({ error: message }, { status })
   }
 
   const posts = await prisma.post.findMany({
@@ -27,8 +38,10 @@ export async function GET(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     await verifyAdminSession()
-  } catch {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unauthorized'
+    const status = message === 'Forbidden' ? 403 : 401
+    return NextResponse.json({ error: message }, { status })
   }
 
   const body = await request.json()

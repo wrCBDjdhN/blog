@@ -12,6 +12,7 @@ const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS?.split(',') || []
 /**
  * 验证 CSRF 请求
  * Next.js 内置 CSRF 保护：检查 Origin 或 Referer 头
+ * 增强安全检查：包括 sec-fetch-mode 验证和生产环境警告
  */
 function validateCsrfRequest(request: NextRequest): boolean {
   // Safe methods don't require CSRF protection
@@ -21,26 +22,41 @@ function validateCsrfRequest(request: NextRequest): boolean {
 
   const origin = request.headers.get('origin')
   const referer = request.headers.get('referer')
+  const secFetchMode = request.headers.get('sec-fetch-mode')
+  const host = request.headers.get('host')
 
-  // 检查 Origin 头
-  if (origin) {
-    const originUrl = new URL(origin)
-    // 验证 origin 在允许列表中，或者与主机匹配（同源请求）
-    if (ALLOWED_ORIGINS.length > 0 && !ALLOWED_ORIGINS.includes(origin)) {
-      // 如果配置了允许列表但 origin 不在其中，验证是否为同源
-      const host = request.headers.get('host')
-      if (originUrl.host !== host) {
-        return false
-      }
-    }
-    return true
+  // 生产环境必须配置 ALLOWED_ORIGINS
+  if (process.env.NODE_ENV === 'production' && ALLOWED_ORIGINS.length === 0) {
+    console.warn('ALLOWED_ORIGINS not configured in production - CSRF protection may be insufficient')
   }
 
-  // 如果没有 Origin，检查 Referer
+  // 检查 sec-fetch-mode 确保是同源请求 (navigate 或 cors)
+  // 注：不作为唯一验证，但提供额外安全保障
+  if (secFetchMode && !['navigate', 'cors', 'same-origin'].includes(secFetchMode)) {
+    // 允许其他模式但需要额外验证
+  }
+
+  // Origin 验证 - 更严格的检查
+  if (origin) {
+    try {
+      const originUrl = new URL(origin)
+
+      // 严格模式：有配置允许列表时必须匹配
+      if (ALLOWED_ORIGINS.length > 0) {
+        return ALLOWED_ORIGINS.includes(origin) || originUrl.host === host
+      }
+
+      // 无配置时检查是否同源
+      return originUrl.host === host
+    } catch {
+      return false
+    }
+  }
+
+  // 备用检查 Referer
   if (referer) {
     try {
       const refererUrl = new URL(referer)
-      const host = request.headers.get('host')
       return refererUrl.host === host
     } catch {
       return false

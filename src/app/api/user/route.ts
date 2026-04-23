@@ -41,5 +41,14 @@ export async function PUT(request: NextRequest) {
     data: { name, bio, avatar, github, twitter },
   })
 
-  return NextResponse.json(user)
+  // Only return non-sensitive fields
+  return NextResponse.json({
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    avatar: user.avatar,
+    bio: user.bio,
+    github: user.github,
+    twitter: user.twitter,
+  })
 }
