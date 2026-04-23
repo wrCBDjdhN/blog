@@ -3,7 +3,6 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   const friendLinks = await prisma.friendLink.findMany({
-    where: { status: 'approved' },
     orderBy: { order: 'desc' },
     select: {
       id: true,

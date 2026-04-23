@@ -58,7 +58,7 @@ export async function PUT(
 
   const { id } = await params
   const body = await request.json()
-  const { name, url, description, avatar, order, status } = body
+  const { name, url, description, avatar, order } = body
 
   const friendLink = await prisma.friendLink.findUnique({
     where: { id },
@@ -76,7 +76,6 @@ export async function PUT(
       description: description ?? undefined,
       avatar: avatar ?? undefined,
       order: order ?? undefined,
-      status: status ?? undefined,
     },
   })
 

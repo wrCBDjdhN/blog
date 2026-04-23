@@ -29,10 +29,7 @@ export async function GET() {
   }
 
   const friendLinks = await prisma.friendLink.findMany({
-    orderBy: [
-      { status: 'asc' },
-      { order: 'desc' },
-    ],
+    orderBy: { order: 'desc' },
   })
 
   return NextResponse.json(friendLinks)
@@ -48,7 +45,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json()
-  const { name, url, description, avatar, order, status } = body
+  const { name, url, description, avatar, order } = body
 
   if (!name || !url) {
     return NextResponse.json({ error: 'Missing required fields: name, url' }, { status: 400 })
@@ -61,7 +58,6 @@ export async function POST(request: NextRequest) {
       description: description || null,
       avatar: avatar || null,
       order: order || 0,
-      status: status || 'pending',
     },
   })
 

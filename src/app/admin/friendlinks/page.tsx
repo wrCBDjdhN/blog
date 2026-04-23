@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
+import ImageUploader from '@/components/ImageUploader'
 
 interface FriendLink {
   id: string
@@ -13,7 +13,6 @@ interface FriendLink {
   description: string | null
   avatar: string | null
   order: number
-  status: string
   createdAt: string
 }
 
@@ -23,7 +22,15 @@ export default function FriendLinksPage() {
 
   const [friendLinks, setFriendLinks] = useState<FriendLink[]>([])
   const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState('all')
+  const [showForm, setShowForm] = useState(false)
+  const [formData, setFormData] = useState({
+    name: '',
+    url: '',
+    description: '',
+    avatar: '',
+    order: 0,
+  })
+  const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
     if (sessionStatus === 'unauthenticated') {
@@ -52,6 +59,45 @@ export default function FriendLinksPage() {
     }
   }, [session])
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!formData.name.trim()) {
+      toast.error('请输入网站名称')
+      return
+    }
+
+    if (!formData.url.trim()) {
+      toast.error('请输入网站URL')
+      return
+    }
+
+    try {
+      setSubmitting(true)
+      const res = await fetch('/api/admin/friendlinks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      })
+
+      if (!res.ok) throw new Error('Failed to create')
+
+      toast.success('创建成功')
+      setFormData({ name: '', url: '', description: '', avatar: '', order: 0 })
+      setShowForm(false)
+      
+      const listRes = await fetch('/api/admin/friendlinks')
+      if (listRes.ok) {
+        const data = await listRes.json()
+        setFriendLinks(data)
+      }
+    } catch {
+      toast.error('创建失败')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   const handleDelete = async (id: string) => {
     if (!confirm('确定要删除这个友链吗？')) return
 
@@ -68,30 +114,6 @@ export default function FriendLinksPage() {
       toast.error('删除失败')
     }
   }
-
-  const handleStatusChange = async (id: string, newStatus: string) => {
-    try {
-      const res = await fetch(`/api/admin/friendlinks/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
-      })
-
-      if (!res.ok) throw new Error('Failed to update')
-
-      toast.success('状态更新成功')
-      setFriendLinks((prev) =>
-        prev.map((link) => (link.id === id ? { ...link, status: newStatus } : link))
-      )
-    } catch {
-      toast.error('更新失败')
-    }
-  }
-
-  const filteredLinks = friendLinks.filter((link) => {
-    if (filter === 'all') return true
-    return link.status === filter
-  })
 
   if (sessionStatus === 'loading' || loading) {
     return (
@@ -111,56 +133,84 @@ export default function FriendLinksPage() {
     <div className="max-w-6xl mx-auto px-4 py-12">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-gray-900">友链管理</h1>
-        <Link
-          href="/admin/friendlinks/new"
+        <button
+          onClick={() => setShowForm(!showForm)}
           className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
         >
-          新增友链
-        </Link>
+          {showForm ? '取消' : '新增友链'}
+        </button>
       </div>
 
-      <div className="flex items-center gap-4 mb-6">
-        <button
-          onClick={() => setFilter('all')}
-          className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
-            filter === 'all'
-              ? 'bg-primary-100 text-primary-700'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-          }`}
-        >
-          全部
-        </button>
-        <button
-          onClick={() => setFilter('approved')}
-          className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
-            filter === 'approved'
-              ? 'bg-primary-100 text-primary-700'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-          }`}
-        >
-          已通过
-        </button>
-        <button
-          onClick={() => setFilter('pending')}
-          className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
-            filter === 'pending'
-              ? 'bg-primary-100 text-primary-700'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-          }`}
-        >
-          待审核
-        </button>
-        <button
-          onClick={() => setFilter('rejected')}
-          className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
-            filter === 'rejected'
-              ? 'bg-primary-100 text-primary-700'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-          }`}
-        >
-          已拒绝
-        </button>
-      </div>
+      {showForm && (
+        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-6 mb-8 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">网站名称 *</label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="请输入网站名称"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">网站URL *</label>
+              <input
+                type="url"
+                value={formData.url}
+                onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                placeholder="https://example.com"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">描述</label>
+            <input
+              type="text"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="请输入描述（可选）"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            />
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-600">头像</label>
+              {formData.avatar && (
+                <img
+                  src={formData.avatar}
+                  alt="头像预览"
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+              )}
+              <ImageUploader
+                onUpload={(url) => setFormData({ ...formData, avatar: url })}
+              />
+            </div>
+            <div className="w-24">
+              <label className="block text-sm text-gray-600 mb-1">排序</label>
+              <input
+                type="number"
+                value={formData.order}
+                onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 transition-colors"
+          >
+            {submitting ? '创建中...' : '创建'}
+          </button>
+        </form>
+      )}
 
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
@@ -173,9 +223,6 @@ export default function FriendLinksPage() {
                 描述
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                状态
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                 排序
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
@@ -184,8 +231,8 @@ export default function FriendLinksPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {filteredLinks.length > 0 ? (
-              filteredLinks.map((link) => (
+            {friendLinks.length > 0 ? (
+              friendLinks.map((link) => (
                 <tr key={link.id}>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
@@ -209,58 +256,9 @@ export default function FriendLinksPage() {
                       {link.description || '-'}
                     </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`inline-flex px-2 py-1 text-xs rounded-full ${
-                        link.status === 'approved'
-                          ? 'bg-green-100 text-green-700'
-                          : link.status === 'pending'
-                            ? 'bg-yellow-100 text-yellow-700'
-                            : 'bg-red-100 text-red-700'
-                      }`}
-                    >
-                      {link.status === 'approved'
-                        ? '已通过'
-                        : link.status === 'pending'
-                          ? '待审核'
-                          : '已拒绝'}
-                    </span>
-                  </td>
                   <td className="px-6 py-4 text-sm text-gray-500">{link.order}</td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      {link.status === 'pending' && (
-                        <>
-                          <button
-                            onClick={() => handleStatusChange(link.id, 'approved')}
-                            className="text-sm text-green-600 hover:text-green-700"
-                          >
-                            通过
-                          </button>
-                          <button
-                            onClick={() => handleStatusChange(link.id, 'rejected')}
-                            className="text-sm text-red-600 hover:text-red-700"
-                          >
-                            拒绝
-                          </button>
-                        </>
-                      )}
-                      {link.status === 'rejected' && (
-                        <button
-                          onClick={() => handleStatusChange(link.id, 'approved')}
-                          className="text-sm text-green-600 hover:text-green-700"
-                        >
-                          重新通过
-                        </button>
-                      )}
-                      {link.status === 'approved' && (
-                        <button
-                          onClick={() => handleStatusChange(link.id, 'rejected')}
-                          className="text-sm text-red-600 hover:text-red-700"
-                        >
-                          拒绝
-                        </button>
-                      )}
                       <button
                         onClick={() => handleDelete(link.id)}
                         className="text-sm text-gray-600 hover:text-gray-700"
@@ -274,7 +272,7 @@ export default function FriendLinksPage() {
             ) : (
               <tr>
                 <td
-                  colSpan={5}
+                  colSpan={4}
                   className="px-6 py-12 text-center text-gray-500"
                 >
                   暂无友链
