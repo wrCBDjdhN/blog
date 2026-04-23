@@ -11,8 +11,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
-  title: 'Personal Blog',
-  description: 'My personal blog and portfolio',
+  title: 'wrCBDjdh的博客',
+  description: 'wrCBDjdh的个人博客',
 }
 
 export default async function RootLayout({
