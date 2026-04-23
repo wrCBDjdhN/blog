@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { format } from 'date-fns'
+import { memo } from 'react'
 
 interface PostCardProps {
   post: {
@@ -17,7 +18,7 @@ interface PostCardProps {
   }
 }
 
-export default function PostCard({ post }: PostCardProps) {
+function PostCardComponent({ post }: PostCardProps) {
   return (
     <Link href={`/articles/${post.id}`} className="group block">
       <article className="bg-white/70 backdrop-blur-sm rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow border border-amber-100/50">
@@ -27,6 +28,7 @@ export default function PostCard({ post }: PostCardProps) {
               src={post.coverImage}
               alt={post.title}
               fill
+              sizes="(max-width: 768px) 100vw, 33vw"
               className="object-cover group-hover:scale-105 transition-transform duration-300"
             />
           </div>
@@ -55,3 +57,5 @@ export default function PostCard({ post }: PostCardProps) {
     </Link>
   )
 }
+
+export default memo(PostCardComponent)

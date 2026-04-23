@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { memo } from 'react'
 
 interface ProductCardProps {
   product: {
@@ -15,7 +16,7 @@ interface ProductCardProps {
   }
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+function ProductCardComponent({ product }: ProductCardProps) {
   return (
     <Link href={`/products/${product.id}`} className="group block">
       <article className="bg-white/70 backdrop-blur-sm rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow border border-amber-100/50">
@@ -25,6 +26,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               src={product.coverImage}
               alt={product.name}
               fill
+              sizes="(max-width: 640px) 100vw, 50vw"
               className="object-cover group-hover:scale-105 transition-transform duration-300"
             />
           </div>
@@ -51,3 +53,5 @@ export default function ProductCard({ product }: ProductCardProps) {
     </Link>
   )
 }
+
+export default memo(ProductCardComponent)

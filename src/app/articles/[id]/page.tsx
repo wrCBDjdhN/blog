@@ -51,6 +51,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               src={post.coverImage}
               alt={post.title}
               fill
+              sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover"
               priority
             />
