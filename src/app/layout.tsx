@@ -13,6 +13,9 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 export const metadata: Metadata = {
   title: 'wrCBDjdh的博客',
   description: 'wrCBDjdh的个人博客',
+  icons: {
+    icon: '/favicon.png',
+  },
 }
 
 export default async function RootLayout({
