@@ -51,24 +51,34 @@ export default function Header({ user }: HeaderProps) {
             >
               商品
             </Link>
-            {user ? (
-              <>
-                <Link
-                  href="/admin"
-                  className={`text-sm font-medium transition-colors ${
-                    pathname?.startsWith('/admin') ? 'text-primary-600' : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  管理后台
-                </Link>
-                <Link
-                  href="/admin/orders"
-                  className={`text-sm font-medium transition-colors ${
-                    pathname?.startsWith('/admin/orders') ? 'text-primary-600' : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  订单管理
-                </Link>
+            <Link
+              href="/friends"
+              className={`text-sm font-medium transition-colors ${
+                isActive('/friends') ? 'text-primary-600' : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              友链
+            </Link>
+{user ? (
+                <>
+                  <Link
+                    href="/admin"
+                    className={`text-sm font-medium transition-colors ${
+                      pathname === '/admin' || pathname?.startsWith('/admin/posts') || pathname?.startsWith('/admin/products') || pathname?.startsWith('/admin/friendlinks')
+                        ? 'text-primary-600'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    管理后台
+                  </Link>
+                  <Link
+                    href="/admin/orders"
+                    className={`text-sm font-medium transition-colors ${
+                      pathname === '/admin/orders' ? 'text-primary-600' : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    订单管理
+                  </Link>
                 <Link
                   href="/account"
                   className={`text-sm font-medium transition-colors ${
