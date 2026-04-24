@@ -3,7 +3,6 @@ import { randomUUID } from 'crypto'
 import { getServerSession } from 'next-auth'
 import { prisma } from '@/lib/prisma'
 import { authOptions } from '@/lib/auth'
-import { sendOrderConfirmationEmail, sendPurchaseNotificationEmail } from '@/lib/email'
 
 function generateOrderNumber(): string {
   const uuid = randomUUID().replace(/-/g, '').toUpperCase()
@@ -18,6 +17,7 @@ async function verifySession() {
   return session
 }
 
+// POST - Create order (only supports general orders now, no product purchases)
 export async function POST(request: NextRequest) {
   let session
   try {
@@ -29,9 +29,17 @@ export async function POST(request: NextRequest) {
   const body = await request.json()
   const { productId, buyerEmail, buyerName } = body
 
-  if (!productId || !buyerEmail || !buyerName) {
+  // Product functionality has been removed
+  if (productId) {
     return NextResponse.json(
-      { error: 'Missing required fields: productId, buyerEmail, buyerName' },
+      { error: 'Product purchases are no longer available' },
+      { status: 400 }
+    )
+  }
+
+  if (!buyerEmail || !buyerName) {
+    return NextResponse.json(
+      { error: 'Missing required fields: buyerEmail, buyerName' },
       { status: 400 }
     )
   }
@@ -44,47 +52,24 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const product = await prisma.product.findUnique({
-    where: { id: productId },
-  })
-
-  if (!product) {
-    return NextResponse.json({ error: 'Product not found' }, { status: 404 })
-  }
-
   const orderNumber = generateOrderNumber()
 
   const order = await prisma.order.create({
     data: {
       orderNumber,
-      productId,
-      productName: product.name,
-      price: product.price,
+      productId: '',
+      productName: 'General Order',
+      price: 0,
       buyerName,
       buyerEmail,
       status: 'pending',
     },
   })
 
-  // Send confirmation emails - let errors propagate to client
-  await sendOrderConfirmationEmail(
-    buyerEmail,
-    orderNumber,
-    product.name,
-    product.price,
-    buyerName
-  )
-  await sendPurchaseNotificationEmail(
-    orderNumber,
-    product.name,
-    product.price,
-    buyerName,
-    buyerEmail
-  )
-
   return NextResponse.json(order)
 }
 
+// GET - Query orders
 export async function GET(request: NextRequest) {
   let session
   try {

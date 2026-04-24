@@ -60,6 +60,7 @@ const quotes = [
   { text: '没关系了我习惯逃避问题的方式，我甚至习惯我讨厌自己的样子。', source: '《搁浅的人》康士坦的变化球' },
   { text: '我愿听她说些不着边际的话 总比与你一起谈谈理想好吧。', source: '《迷恋》梅卡德尔' },
   { text: '大脑是用来让我们活着的，而不是让我们快乐的。', source: 'Unknow' },
+  { text: '我一头撞死在了自己向往的蓝天里。', source: 'Unknow' },
 ]
 
 function getRandomQuote(excludeIndex: number): { text: string; source: string; index: number } {

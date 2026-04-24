@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import Quote from '@/components/Quote'
 import PostCard from '@/components/PostCard'
-import ProductCard from '@/components/ProductCard'
 import Clock from '@/components/Clock'
 import { GithubIcon, EmailIcon, BilibiliIcon } from '@/components/Icons'
 
@@ -11,18 +10,12 @@ const AVATAR_PATH = '/avatars/my-photo.png'
 
 export default async function HomePage() {
   // 并行执行所有数据库查询，消除 waterfall
-  const [user, recentPosts, recentProducts, stats] = await Promise.all([
+  const [user, recentPosts, stats] = await Promise.all([
     prisma.user.findFirst({ orderBy: { createdAt: 'asc' } }),
     prisma.post.findMany({
       where: { published: true },
       orderBy: { createdAt: 'desc' },
       take: 3,
-      include: { _count: { select: { likes: true, comments: true } } },
-    }),
-    prisma.product.findMany({
-      where: { published: true },
-      orderBy: { createdAt: 'desc' },
-      take: 4,
       include: { _count: { select: { likes: true, comments: true } } },
     }),
     prisma.post.aggregate({ _sum: { viewCount: true } }),
@@ -67,10 +60,6 @@ export default async function HomePage() {
               <span className="block text-2xl font-bold text-gray-900">{recentPosts.length}</span>
               <span>文章</span>
             </div>
-            <div>
-              <span className="block text-2xl font-bold text-gray-900">{recentProducts.length}</span>
-              <span>商品</span>
-            </div>
           </div>
           <div className="mt-4">
             <Clock />
@@ -94,23 +83,7 @@ export default async function HomePage() {
         </section>
       )}
 
-      {recentProducts.length > 0 && (
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">商品展示</h2>
-            <Link href="/products" className="text-sm text-primary-600 hover:text-primary-700">
-              查看全部 →
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {recentProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {recentPosts.length === 0 && recentProducts.length === 0 && (
+      {recentPosts.length === 0 && (
         <div className="text-center py-16">
           <p className="text-gray-500">博主还没有发布任何内容</p>
         </div>

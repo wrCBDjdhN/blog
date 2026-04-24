@@ -17,13 +17,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
-  const where =
-    targetType === 'post'
-      ? { postId: targetId, userId: session.user.id }
-      : { productId: targetId, userId: session.user.id }
+  // Only support post likes now
+  if (targetType !== 'post') {
+    return NextResponse.json({ error: 'Invalid target type' }, { status: 400 })
+  }
 
   const existingLike = await prisma.like.findFirst({
-    where,
+    where: { postId: targetId, userId: session.user.id },
   })
 
   if (existingLike) {
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     })
 
     const count = await prisma.like.count({
-      where: targetType === 'post' ? { postId: targetId } : { productId: targetId },
+      where: { postId: targetId },
     })
 
     return NextResponse.json({ liked: false, count })
@@ -40,12 +40,12 @@ export async function POST(request: NextRequest) {
     await prisma.like.create({
       data: {
         userId: session.user.id,
-        ...(targetType === 'post' ? { postId: targetId } : { productId: targetId }),
+        postId: targetId,
       },
     })
 
     const count = await prisma.like.count({
-      where: targetType === 'post' ? { postId: targetId } : { productId: targetId },
+      where: { postId: targetId },
     })
 
     return NextResponse.json({ liked: true, count })

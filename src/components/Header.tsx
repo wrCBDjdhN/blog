@@ -44,14 +44,6 @@ export default function Header({ user }: HeaderProps) {
               文章
             </Link>
             <Link
-              href="/products"
-              className={`text-sm font-medium transition-colors ${
-                isActive('/products') ? 'text-primary-600' : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              商品
-            </Link>
-            <Link
               href="/friends"
               className={`text-sm font-medium transition-colors ${
                 isActive('/friends') ? 'text-primary-600' : 'text-gray-600 hover:text-gray-900'
@@ -59,25 +51,17 @@ export default function Header({ user }: HeaderProps) {
             >
               友链
             </Link>
-{user ? (
-                <>
-                  <Link
-                    href="/admin"
+            {user ? (
+              <>
+                <Link
+                  href="/admin"
                     className={`text-sm font-medium transition-colors ${
-                      pathname === '/admin' || pathname?.startsWith('/admin/posts') || pathname?.startsWith('/admin/products') || pathname?.startsWith('/admin/friendlinks')
+pathname === '/admin' || pathname?.startsWith('/admin/posts') || pathname?.startsWith('/admin/friendlinks')
                         ? 'text-primary-600'
                         : 'text-gray-600 hover:text-gray-900'
                     }`}
                   >
                     管理后台
-                  </Link>
-                  <Link
-                    href="/admin/orders"
-                    className={`text-sm font-medium transition-colors ${
-                      pathname === '/admin/orders' ? 'text-primary-600' : 'text-gray-600 hover:text-gray-900'
-                    }`}
-                  >
-                    订单管理
                   </Link>
                 <Link
                   href="/account"
@@ -133,23 +117,11 @@ export default function Header({ user }: HeaderProps) {
               <Link href="/articles" className="text-sm font-medium text-gray-600" onClick={() => setMenuOpen(false)}>
                 文章
               </Link>
-              <Link href="/products" className="text-sm font-medium text-gray-600" onClick={() => setMenuOpen(false)}>
-                商品
-              </Link>
               {user ? (
                 <>
                   <Link href="/admin" className="text-sm font-medium text-gray-600" onClick={() => setMenuOpen(false)}>
                     管理后台
                   </Link>
-                  <Link href="/admin/orders" className="text-sm font-medium text-gray-600" onClick={() => setMenuOpen(false)}>
-                    订单管理
-                  </Link>
-                  <Link href="/account" className="text-sm font-medium text-gray-600" onClick={() => setMenuOpen(false)}>
-                    账号设置
-                  </Link>
-                  <span className="text-sm text-gray-500">
-                    {user.name || '用户'}
-                  </span>
                 </>
               ) : (
                 <Link href="/login" className="text-sm font-medium text-gray-600" onClick={() => setMenuOpen(false)}>
