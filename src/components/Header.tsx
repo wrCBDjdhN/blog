@@ -71,14 +71,6 @@ pathname === '/admin' || pathname?.startsWith('/admin/posts') || pathname?.start
                 >
                   账号设置
                 </Link>
-                <Link
-                  href="/chat"
-                  className={`text-sm font-medium transition-colors ${
-                    pathname === '/chat' ? 'text-primary-600' : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  AI聊天
-                </Link>
                 <span className="text-sm text-gray-500">
                   {user.name || '用户'}
                 </span>
@@ -129,9 +121,6 @@ pathname === '/admin' || pathname?.startsWith('/admin/posts') || pathname?.start
                 <>
                   <Link href="/admin" className="text-sm font-medium text-gray-600" onClick={() => setMenuOpen(false)}>
                     管理后台
-                  </Link>
-                  <Link href="/chat" className="text-sm font-medium text-gray-600" onClick={() => setMenuOpen(false)}>
-                    AI聊天
                   </Link>
                 </>
               ) : (
