@@ -18,7 +18,7 @@ export default function FriendsPage() {
   useEffect(() => {
     async function fetchFriendLinks() {
       try {
-        const res = await fetch('/api/friendlinks')
+        const res = await fetch('/api/friendlinks', { cache: 'no-store' })
         if (!res.ok) throw new Error('Failed to fetch')
         const data = await res.json()
         setFriendLinks(data)
