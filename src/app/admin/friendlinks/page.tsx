@@ -23,6 +23,8 @@ export default function FriendLinksPage() {
   const [friendLinks, setFriendLinks] = useState<FriendLink[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
+  const [mode, setMode] = useState<'create' | 'edit'>('create')
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     name: '',
     url: '',
@@ -74,28 +76,70 @@ export default function FriendLinksPage() {
 
     try {
       setSubmitting(true)
-      const res = await fetch('/api/admin/friendlinks', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      })
 
-      if (!res.ok) throw new Error('Failed to create')
+      if (mode === 'edit' && editingId) {
+        // Edit mode - PUT request
+        const res = await fetch(`/api/admin/friendlinks/${editingId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        })
 
-      toast.success('创建成功')
-      setFormData({ name: '', url: '', description: '', avatar: '', order: 0 })
-      setShowForm(false)
-      
-      const listRes = await fetch('/api/admin/friendlinks')
-      if (listRes.ok) {
-        const data = await listRes.json()
-        setFriendLinks(data)
+        if (!res.ok) throw new Error('Failed to update')
+
+        toast.success('保存成功')
+        resetForm()
+
+        const listRes = await fetch('/api/admin/friendlinks')
+        if (listRes.ok) {
+          const data = await listRes.json()
+          setFriendLinks(data)
+        }
+      } else {
+        // Create mode - POST request
+        const res = await fetch('/api/admin/friendlinks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        })
+
+        if (!res.ok) throw new Error('Failed to create')
+
+        toast.success('创建成功')
+        setFormData({ name: '', url: '', description: '', avatar: '', order: 0 })
+        setShowForm(false)
+
+        const listRes = await fetch('/api/admin/friendlinks')
+        if (listRes.ok) {
+          const data = await listRes.json()
+          setFriendLinks(data)
+        }
       }
     } catch {
-      toast.error('创建失败')
+      toast.error(mode === 'edit' ? '保存失败' : '创建失败')
     } finally {
       setSubmitting(false)
     }
+  }
+
+  const resetForm = () => {
+    setFormData({ name: '', url: '', description: '', avatar: '', order: 0 })
+    setMode('create')
+    setEditingId(null)
+    setShowForm(false)
+  }
+
+  const handleEdit = (link: FriendLink) => {
+    setFormData({
+      name: link.name,
+      url: link.url,
+      description: link.description || '',
+      avatar: link.avatar || '',
+      order: link.order,
+    })
+    setMode('edit')
+    setEditingId(link.id)
+    setShowForm(true)
   }
 
   const handleDelete = async (id: string) => {
@@ -134,7 +178,18 @@ export default function FriendLinksPage() {
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-gray-900">友链管理</h1>
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            if (showForm && mode === 'edit') {
+              resetForm()
+            } else {
+              setShowForm(!showForm)
+              if (!showForm) {
+                setMode('create')
+                setEditingId(null)
+                setFormData({ name: '', url: '', description: '', avatar: '', order: 0 })
+              }
+            }
+          }}
           className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
         >
           {showForm ? '取消' : '新增友链'}
@@ -207,7 +262,7 @@ export default function FriendLinksPage() {
             disabled={submitting}
             className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 transition-colors"
           >
-            {submitting ? '创建中...' : '创建'}
+            {submitting ? (mode === 'edit' ? '保存中...' : '创建中...') : (mode === 'edit' ? '保存' : '创建')}
           </button>
         </form>
       )}
@@ -259,6 +314,12 @@ export default function FriendLinksPage() {
                   <td className="px-6 py-4 text-sm text-gray-500">{link.order}</td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => handleEdit(link)}
+                        className="text-sm text-primary-600 hover:text-primary-700"
+                      >
+                        编辑
+                      </button>
                       <button
                         onClick={() => handleDelete(link.id)}
                         className="text-sm text-gray-600 hover:text-gray-700"

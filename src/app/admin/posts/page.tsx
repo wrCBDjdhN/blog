@@ -164,13 +164,21 @@ export default function AdminPostsPage() {
                       {formatDate(post.createdAt)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <button
-                        onClick={() => handleDelete(post.id)}
-                        disabled={deletingId === post.id}
-                        className="px-3 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 disabled:opacity-50 transition-colors"
-                      >
-                        {deletingId === post.id ? '删除中...' : '删除'}
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <a
+                          href={`/admin/posts/${post.id}`}
+                          className="px-3 py-1 bg-primary-600 text-white rounded text-xs hover:bg-primary-700 transition-colors"
+                        >
+                          编辑
+                        </a>
+                        <button
+                          onClick={() => handleDelete(post.id)}
+                          disabled={deletingId === post.id}
+                          className="px-3 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 disabled:opacity-50 transition-colors"
+                        >
+                          {deletingId === post.id ? '删除中...' : '删除'}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
