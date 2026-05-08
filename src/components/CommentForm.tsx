@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 
 interface CommentFormProps {
@@ -16,6 +17,7 @@ export default function CommentForm({
   onSuccess,
 }: CommentFormProps) {
   const { data: session } = useSession()
+  const router = useRouter()
   const [content, setContent] = useState('')
   const [nickname, setNickname] = useState('')
   const [loading, setLoading] = useState(false)
@@ -50,6 +52,7 @@ export default function CommentForm({
       toast.success('评论成功')
       setContent('')
       setNickname('')
+      router.refresh()
       onSuccess?.()
     } catch (error) {
       toast.error('评论失败')
