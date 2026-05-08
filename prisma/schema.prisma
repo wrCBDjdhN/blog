@@ -107,11 +107,9 @@ model FriendLink {
   description String?  // 描述
   avatar      String?  // 头像URL
   order       Int      @default(0) // 排序
-  status      String   @default("pending") // pending/approved/rejected
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  @@index([status])
   @@index([order])
 }
 
