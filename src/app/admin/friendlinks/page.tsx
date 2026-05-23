@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
-import ImageUploader from '@/components/ImageUploader'
 
 interface FriendLink {
   id: string
@@ -234,16 +233,21 @@ export default function FriendLinksPage() {
 
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <label className="text-sm text-gray-600">头像</label>
+              <label className="text-sm text-gray-600">头像URL</label>
               {formData.avatar && (
                 <img
                   src={formData.avatar}
                   alt="头像预览"
                   className="w-10 h-10 rounded-full object-cover"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
                 />
               )}
-              <ImageUploader
-                onUpload={(url) => setFormData({ ...formData, avatar: url })}
+              <input
+                type="url"
+                value={formData.avatar}
+                onChange={(e) => setFormData({ ...formData, avatar: e.target.value })}
+                placeholder="https://cdn.example.com/avatar.png"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
             <div className="w-24">
