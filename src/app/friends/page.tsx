@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import FriendLinkAvatar from '@/components/FriendLinkAvatar'
 
 export const dynamic = 'force-dynamic'
 
@@ -37,17 +38,7 @@ export default async function FriendsPage() {
               rel="noopener noreferrer"
               className="flex items-start gap-4 p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
             >
-              {link.avatar ? (
-                <img
-                  src={link.avatar}
-                  alt={link.name}
-                  className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-                />
-              ) : (
-                <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
-                  <span className="text-lg text-primary-600">{link.name[0]}</span>
-                </div>
-              )}
+              <FriendLinkAvatar avatar={link.avatar} name={link.name} />
               <div className="flex-1 min-w-0">
                 <h3 className="text-base font-medium text-gray-900 truncate">
                   {link.name}
