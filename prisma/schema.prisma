@@ -73,22 +73,6 @@ model Like {
   @@index([userId])
 }
 
-model Order {
-  id          String    @id @default(cuid())
-  orderNumber String   @unique
-  productId   String
-  productName String
-  price       Float
-  buyerName  String
-  buyerEmail String
-  status     String
-  createdAt  DateTime  @default(now())
-  paidAt     DateTime?
-
-  @@index([orderNumber])
-  @@index([buyerEmail])
-}
-
 model RateLimit {
   id        String   @id @default(cuid())
   identifier String  @unique

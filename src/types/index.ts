@@ -38,25 +38,11 @@ export interface Post {
   authorId: string
 }
 
-export interface Product {
-  id: string
-  name: string
-  description: string
-  price: number
-  coverImage?: string | null
-  images: string
-  videoUrl?: string | null
-  published: boolean
-  createdAt: Date
-  updatedAt: Date
-}
-
 export interface Comment {
   id: string
   content: string
   nickname?: string | null
   createdAt: Date
   postId?: string | null
-  productId?: string | null
   userId?: string | null
 }
