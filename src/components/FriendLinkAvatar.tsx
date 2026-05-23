@@ -12,7 +12,7 @@ export default function FriendLinkAvatar({ avatar, name }: FriendLinkAvatarProps
 
   if (!avatar || imgError) {
     return (
-      <div className="w-12 h-12 rounded-full bg-primary-100 items-center justify-center flex-shrink-0">
+      <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
         <span className="text-lg text-primary-600">{name[0]}</span>
       </div>
     )
