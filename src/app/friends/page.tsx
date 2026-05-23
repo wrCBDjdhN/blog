@@ -1,7 +1,6 @@
-'use client'
+import { prisma } from '@/lib/prisma'
 
-import { useState, useEffect } from 'react'
-import toast from 'react-hot-toast'
+export const dynamic = 'force-dynamic'
 
 interface FriendLink {
   id: string
@@ -11,41 +10,17 @@ interface FriendLink {
   avatar: string | null
 }
 
-export default function FriendsPage() {
-  const [friendLinks, setFriendLinks] = useState<FriendLink[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    async function fetchFriendLinks() {
-      try {
-        const res = await fetch('/api/friendlinks', { cache: 'no-store' })
-        if (!res.ok) throw new Error('Failed to fetch')
-        const data = await res.json()
-        setFriendLinks(data)
-      } catch {
-        // Silently fail - no friend links yet
-        setFriendLinks([])
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchFriendLinks()
-  }, [])
-
-  if (loading) {
-    return (
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-8"></div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="h-32 bg-gray-200 rounded"></div>
-            <div className="h-32 bg-gray-200 rounded"></div>
-          </div>
-        </div>
-      </div>
-    )
-  }
+export default async function FriendsPage() {
+  const friendLinks = await prisma.friendLink.findMany({
+    orderBy: { order: 'desc' },
+    select: {
+      id: true,
+      name: true,
+      url: true,
+      description: true,
+      avatar: true,
+    },
+  })
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 min-h-screen">
@@ -78,7 +53,7 @@ export default function FriendsPage() {
                   {link.name}
                 </h3>
                 {link.description && (
-                  <p className="text-sm text-gray-500 line-clamp-2 mt-1">
+                  <p className="text-sm text-gray-500 mt-1 line-clamp-2">
                     {link.description}
                   </p>
                 )}
@@ -87,7 +62,7 @@ export default function FriendsPage() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-16">
+        <div className="text-center py-12 bg-white rounded-lg">
           <p className="text-gray-500">暂无友链</p>
         </div>
       )}
