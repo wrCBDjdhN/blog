@@ -13,6 +13,8 @@ const quotes = [
   { text: '在成人之前，真想先成为自己，在世界毁灭之前，真想先毁灭自己。', source: '《空》草东没有派对' },
   { text: '我希望她幸福她幸福她幸福。', source: '《现在你才不幸福》' },
   { text: 'FACE THE FEAR,MAKE THE FUTURE。', source: 'LOBOTOMY CORTORATION' },
+  { text: '我乃死，我乃生。我为暗，我亦为光。', source: 'LOBOTOMY CORTORATION' },
+  { text: '不畏死，方可生。', source: 'LOBOTOMY CORTORATION' },
   { text: 'THE WORLD IS SICK', source: 'Unknow' },
   { text: '和过去的自己做个了断，弱小的人总是眼泪泡饭', source: '《矿》亚细亚旷世奇才' },
   { text: '不理解，不原谅。', source: '《宇宙探索编辑部》' },
@@ -93,6 +95,10 @@ const quotes = [
   { text: '一边沉默边共舞，你在世人眼中像是怪物，而我却跟着你将海游成枯竭的湖。', source: '《脱水蓝鲸》' },
   { text: '只是路过的你，请听我说，别对我太好了，我怕死时想起你会不舍。', source: '《无名情书》' },
   { text: '愿你能与珍视之人相逢，只可惜将来陪在你身边那人不会是我。', source: '《无名情书》' },
+  { text: '谎言重复一千遍就成了真理。', source: '纳粹德国宣传部长' },
+  { text: '一种事物，一种感情，一旦失衡，就会失去它原来该有的样子。', source: '《失衡》（《我的世界》地图）' },
+  { text: '恐惧，是弱点劫持了你身体里的驾驶舱。', source: '《我的世界》大电影' },
+  { text: '我们控制，我们收容，我们保护。', source: 'SCP基金会' },
 ]
 
 function getRandomQuote(excludeIndex: number): { text: string; source: string; index: number } {

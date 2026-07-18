@@ -26,7 +26,7 @@ export default async function FriendsPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 min-h-screen">
       <h1 className="text-3xl font-bold text-gray-900 mb-2">友情链接</h1>
-      <p className="text-gray-500 mb-8">交换友链请联系博主</p>
+      <p className="text-gray-500 mb-8">交换友链请联系我</p>
 
       {friendLinks.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
