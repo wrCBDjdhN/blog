@@ -24,11 +24,34 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Secret, email, and password are required' }, { status: 400 })
   }
 
+  // V7 修复：若未配置 INIT_SECRET，直接拒绝，避免空密钥被绕过。
+  if (!process.env.INIT_SECRET) {
+    return NextResponse.json({ error: 'Initialization is not configured' }, { status: 503 })
+  }
+
   if (secret !== process.env.INIT_SECRET) {
     return NextResponse.json({ error: 'Invalid secret' }, { status: 401 })
   }
 
+  // V7 修复：支持通过 INIT_DISABLED=true 关闭初始化端点；
+  // 同时若已存在管理员账号则拒绝重复初始化。
+  if (process.env.INIT_DISABLED === 'true') {
+    return NextResponse.json({ error: 'Initialization is disabled' }, { status: 403 })
+  }
+
   try {
+    const existingAdmin = await prisma.user.findFirst({
+      where: { role: 'admin' },
+      select: { id: true },
+    })
+
+    if (existingAdmin) {
+      return NextResponse.json(
+        { error: 'An admin account already exists. Initialization is locked.' },
+        { status: 403 }
+      )
+    }
+
     const existingUser = await prisma.user.findUnique({
       where: { email },
     })

@@ -51,6 +51,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing required fields: name, url' }, { status: 400 })
   }
 
+  // V6 修复：拒绝非 http(s) 协议（如 javascript:），防止存储型 XSS。
+  if (!/^https?:\/\//i.test(url)) {
+    return NextResponse.json({ error: 'URL must start with http:// or https://' }, { status: 400 })
+  }
+
   const friendLink = await prisma.friendLink.create({
     data: {
       name,

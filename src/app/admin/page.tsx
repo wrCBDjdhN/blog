@@ -7,7 +7,17 @@ import { authOptions } from '@/lib/auth'
 export default async function AdminPage() {
   const session = await getServerSession(authOptions)
 
-  if (!session) {
+  if (!session?.user?.email) {
+    redirect('/admin/login')
+  }
+
+  // V5 修复：除登录态外，必须校验 admin 角色（与 middleware 形成双保险）。
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    select: { role: true },
+  })
+
+  if (user?.role !== 'admin') {
     redirect('/admin/login')
   }
 

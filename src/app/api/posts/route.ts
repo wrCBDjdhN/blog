@@ -3,6 +3,24 @@ import { getServerSession } from 'next-auth'
 import { prisma } from '@/lib/prisma'
 import { authOptions } from '@/lib/auth'
 
+async function verifyAdminSession() {
+  const session = await getServerSession(authOptions)
+  if (!session?.user?.email) {
+    throw new Error('Unauthorized')
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    select: { id: true, role: true },
+  })
+
+  if (user?.role !== 'admin') {
+    throw new Error('Forbidden')
+  }
+
+  return user
+}
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const page = parseInt(searchParams.get('page') || '1')
@@ -40,10 +58,14 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions)
-
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  // V3 修复：除了登录态，还必须校验 admin 角色，禁止普通注册用户发帖。
+  let admin
+  try {
+    admin = await verifyAdminSession()
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unauthorized'
+    const status = message === 'Forbidden' ? 403 : 401
+    return NextResponse.json({ error: message }, { status })
   }
 
   const body = await request.json()
@@ -56,7 +78,7 @@ export async function POST(request: NextRequest) {
       content,
       coverImage,
       published,
-      authorId: session.user.id,
+      authorId: admin.id,
     },
   })
 

@@ -60,6 +60,11 @@ export async function PUT(
   const body = await request.json()
   const { name, url, description, avatar, order } = body
 
+  // V6 修复：若提供 url，必须校验为 http(s) 协议，拒绝 javascript: 等。
+  if (url !== undefined && !/^https?:\/\//i.test(url)) {
+    return NextResponse.json({ error: 'URL must start with http:// or https://' }, { status: 400 })
+  }
+
   const friendLink = await prisma.friendLink.findUnique({
     where: { id },
   })
