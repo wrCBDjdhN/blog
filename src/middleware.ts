@@ -67,6 +67,39 @@ function validateCsrfRequest(request: NextRequest): boolean {
   return false
 }
 
+/**
+ * 生成 per-request CSP 响应头（nonce 方案）。
+ *
+ * Next.js App Router 会在渲染时读取 x-nonce 请求头，并将其自动应用到
+ * 它生成的所有内联 <script>/<style> 标签上（Next.js >= 13.4.20）。
+ * 因此 script-src 只需放行 'self' + 'nonce-...'，无需 unsafe-inline。
+ *
+ * 修复背景：原先 next.config.js 里静态下发的 CSP（script-src 'self'，无 nonce）
+ * 拦截了 Next.js 所有内联脚本（__next_f.push(...)），导致 JS 完全不执行、
+ * 页面无法水合——管理后台永远停留在「加载中」，文章页只有顶栏没有内容。
+ */
+function buildCspHeader(nonce: string): string {
+  // 开发模式下 webpack Fast Refresh 依赖 eval()，需放行 unsafe-eval（仅 dev）。
+  // 生产构建不使用 Fast Refresh，因此不包含 unsafe-eval。
+  const scriptSrc =
+    process.env.NODE_ENV === 'development'
+      ? `script-src 'self' 'nonce-${nonce}' 'unsafe-eval' https://static.cloudflareinsights.com`
+      : `script-src 'self' 'nonce-${nonce}' https://static.cloudflareinsights.com`
+
+  return [
+    "default-src 'self'",
+    "img-src 'self' https: data: i.ibb.co *.ibb.co",
+    scriptSrc,
+    // style-src 保留 unsafe-inline：react-hot-toast 及 Quote 组件等运行时注入内联样式
+    "style-src 'self' 'unsafe-inline'",
+    "font-src 'self' data:",
+    "connect-src 'self' https:",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ].join('; ')
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
@@ -102,9 +135,25 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  return NextResponse.next()
+  // CSP：每个请求生成一次性 nonce，并传给渲染层
+  const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
+  const contentSecurityPolicyHeaderValue = buildCspHeader(nonce)
+
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-nonce', nonce)
+  requestHeaders.set('Content-Security-Policy', contentSecurityPolicyHeaderValue)
+
+  const response = NextResponse.next({
+    request: { headers: requestHeaders },
+  })
+  response.headers.set('Content-Security-Policy', contentSecurityPolicyHeaderValue)
+
+  return response
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/api/:path*'],
+  // 覆盖所有页面/API 路由（排除静态资源与图片优化端点）。
+  // 注意：刻意不排除 prefetch 请求——/admin 鉴权必须对 prefetch 同样生效，
+  // 否则未登录用户可通过 prefetch 读取管理页的 RSC payload。
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 }

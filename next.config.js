@@ -100,10 +100,9 @@ const nextConfig = {
             key: 'Strict-Transport-Security',
             value: 'max-age=31536000; includeSubDomains; preload',
           },
-          {
-            key: 'Content-Security-Policy',
-            value: "default-src 'self'; img-src 'self' https: data: i.ibb.co *.ibb.co; script-src 'self' https://static.cloudflareinsights.com; style-src 'self'; font-src 'self' data:; connect-src 'self' https:; frame-ancestors 'none'; base-uri 'self'; form-action 'self';",
-          },
+          // CSP 已移至 src/middleware.ts（per-request nonce 方案）。
+          // Next.js 内联脚本（__next_f.push）必须由 nonce 放行，否则页面无法水合；
+          // 此处若继续下发静态 CSP 会与 middleware 的 CSP 叠加取交集，问题依旧存在。
           {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=(), payment=()',

@@ -99,6 +99,8 @@ const quotes = [
   { text: '一种事物，一种感情，一旦失衡，就会失去它原来该有的样子。', source: '《失衡》（《我的世界》地图）' },
   { text: '恐惧，是弱点劫持了你身体里的驾驶舱。', source: '《我的世界》大电影' },
   { text: '我们控制，我们收容，我们保护。', source: 'SCP基金会' },
+  { text: '死亡是湖面上永不停歇的，淅淅沥沥的雨。', source: 'Unknow' },
+  { text: '我必须对未来的我保持怀疑', source: 'Unknow' },
 ]
 
 function getRandomQuote(excludeIndex: number): { text: string; source: string; index: number } {
@@ -115,7 +117,10 @@ function getRandomQuote(excludeIndex: number): { text: string; source: string; i
 }
 
 export default function Quote() {
-  const [currentQuote, setCurrentQuote] = useState<{ text: string; source: string; index: number }>(() => getRandomQuote(-1))
+  // 初始状态必须是确定性的：服务端与客户端首帧渲染同一句引言，
+  // 否则 Math.random() 造成 hydration 不匹配（#418/#425）。
+  // 挂载后再随机切换。
+  const [currentQuote, setCurrentQuote] = useState<{ text: string; source: string; index: number }>({ ...quotes[0], index: 0 })
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   const refreshQuote = useCallback(() => {

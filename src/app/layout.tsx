@@ -18,6 +18,11 @@ export const metadata: Metadata = {
   },
 }
 
+// CSP nonce 方案要求：页面必须按请求动态渲染，不能静态预渲染。
+// 静态页面在构建期渲染，其内联脚本没有 nonce；而 middleware 下发的 CSP
+// 要求 nonce 匹配，脚本会被拦截，页面无法水合（V9 CSP 修复）。
+export const dynamic = 'force-dynamic'
+
 export default async function RootLayout({
   children,
 }: {
